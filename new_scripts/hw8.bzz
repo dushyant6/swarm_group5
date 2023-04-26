@@ -20,7 +20,7 @@ neighbors.listen("class", function(vid, value, rid){
 	azim = neighbors.get(rid).azimuth
 	elev = neighbors.get(rid).elevation
 	if(id == 4){
-		log("rid = ", rid)
+		#log("rid = ", rid)
 	}
 	if (math.abs(azim) < math.abs(min_angle)){
 		min_angle = azim
@@ -41,7 +41,7 @@ else if (math.abs(min_angle) > 0.16){
 }
 if (id == 4){
 x = 2
-#log("robot ", id, " sees robot ", closest_neigh, " at azimuth ", min_angle)
+log("robot ", id, " sees robot ", closest_neigh, " at azimuth ", min_angle, ", s = ", s)
 }
 
 		#target object		
@@ -69,7 +69,7 @@ if (id != 1){
 			#log("robot", id, " sees nothing")
 		}
 }
-
+min_angle = 3.14
 }
 # This function is executed when you press the reset button
 function reset() {
