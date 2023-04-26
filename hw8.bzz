@@ -1,0 +1,117 @@
+vmax = 10 #max velocity of each robot
+odd_params = {}
+even_params = {}
+
+MyClass = {
+    # Class constructor
+    .new = function(x) {
+        # Return a new table
+        return {
+            # Bind the attribute values
+            .my_attribute = x,
+            # Bind the methods
+            .my_method = MyClass.my_method
+        }
+    },
+
+    # Method definition
+    .my_method = function(x) {
+        return self.my_attribute + x
+    }
+}
+
+function init() {
+if (id%2 == 0){
+	set_leds(255,0,0)
+}
+else{
+	set_leds(0,255,0)
+}
+
+even_params = {
+	.cost = 0,
+	.foraging = 1 #indicates that the group is still going towards the goal
+}
+
+odd_params = {
+	.cost = 0,
+	.foraging = 1 #indicates that the group is still going towards the goal
+}
+
+result_file = io.fopen("results.csv", "a")
+}
+
+# This function is executed at each time step
+# The main loop is controller by ARGoS
+function step() {
+#Broadcast id of the robot which can be used to control wheel velocities
+neighbors.broadcast("class", id)
+neighbors.listen("class", function(vid, value, rid){
+	my_dist = neighbors.get(rid).distance
+	azim = neighbors.get(rid).azimuth
+	elev = neighbors.get(rid).elevation
+
+	if((id%2 == 1) and (id != 11)){
+		#target object		
+		if((rid == 11) and (azim < 0.4) and (azim > -0.4)){ #checking if the object is in +/-20 degrees in front of robot
+			LH = -2./10
+			RH = 1.
+			set_wheels(LH*vmax, RH*vmax)						
+		}
+
+		#robots of same class
+		else if((value %2 == 1) and (azim < 0.08) and (azim > -0.08)){
+			#log("robot ", id, " moving towards robot of class 1")
+			LH = -1./10; RH = 1./10
+			set_wheels(LH*vmax, RH*vmax)			
+		}
+
+		#robots of different class
+		else if((value %2 == 0) and (azim < 0.08) and (azim > -0.08)){
+			LH = -1./10; RH = 1./10
+			set_wheels(LH*vmax, RH*vmax)			
+		}
+
+		else{
+			LH = -2./10; RH = 2./10
+			set_wheels(LH*vmax, RH*vmax)			
+		}}
+
+	else if((id%2 == 0) and (id != 8)){
+		#target object detected
+		if((rid == 8) and (azim < 0.08) and (azim > -0.08)){
+			LH = -2./10; RH = 1.			
+			set_wheels(LH*vmax, RH*vmax)
+		}
+
+		else if((rid %2 == 0) and (rid != 8) and (azim < 0.08) and (azim > -0.08)){
+			LH = -1./10; RH = 1./10
+			set_wheels(LH*vmax, RH*vmax)			
+		}
+
+		else if((rid %2 == 1) and (azim < 0.08) and (azim > -0.08)){
+			LH = -1./10; RH = 1./10
+			set_wheels(LH*vmax, RH*vmax)
+		}
+
+		#else{
+			LH = -1./10; RH = 1./10
+			#set_wheels(LH*vmax, RH*vmax)			
+		#}
+
+		}
+
+})
+		#cost = cost + 1
+		odd_params.cost = 0
+		io.fwrite(result_file, id, ",", odd_params.cost)
+}
+
+# This function is executed when you press the reset button
+function reset() {
+}
+
+# This function is executed once when you close the simulator
+function destroy() {
+io.fclose(result_file)
+}
