@@ -17,10 +17,50 @@ class Swarm:
                 self.robot_id_list = []
                 for i in range(num_robots):
                         if i%class_num == class_int:
-                                self.robot_id_list.append[i]
+                                self.robot_id_list.append(i)
                 self.class_size = len(self.robot_id_list)
                 self.neigh_dict = {}
-                
+                for id in self.robot_id_list:
+                        robot = Robot(id)
+                        neigh_dict[id] = robot.clustered_neighbors
+                self.cluster_size_list = self.cluster_size()
+
+                        
+        def cluster_size(self):
+                #find minimum size of neighbor list among all robots (should be somewhat close and not cause too much loss of data)
+                min_size = 0
+                len_list = []
+                for id in self.robot_id_list:
+                        robot = Robot(id)
+                        len_list.append(len(robot.seen_distances))
+                min_size = min(len_list)
+                print('min size = ', min_size)                        
+                cluster_size_list = []
+                keys = list(self.neigh_dict.keys())
+                max_cluster_size = 0
+                for m in range(min_size):
+                        for point in keys:
+                                cluster = []
+                                for i in self.neigh_dict[point][m]:
+                                        cluster.append(i)
+                                
+                                for node in self.neigh_dict[point][m]:
+                                        if(len(self.neigh_dict[node][m]) >0):
+                                                for pt in self.neigh_dict[node][m]:
+                                                        #print(pt, end = ",")
+                                                        cluster.append(pt)
+                                        #print("\n")
+                                cluster = list(set(cluster))
+                                cluster_size = len(cluster)
+                                if cluster_size > max_cluster_size:
+                                        max_cluster_size = cluster_size
+                        cluster_size_list.append(max_cluster_size)
+                return cluster_size_list
+
+        def find_total_cost(self):
+                #Find total cost at all instances for a swarm using cluster sizes. Need to correct cluster size logic as it is giving wrong answer currently
+                return
+
 
 class Robot:
         def __init__(self, id):
@@ -98,10 +138,13 @@ neigh_dict[3] = [1,2,4, 8, 9,10, 11]
 cl_size = cluster_size(neigh_dict)
 print('cluster_size =', cl_size)
 
+
 a = test()
-print(a.robot.id)
-print(a.robot.total_cost)
 print(len(a.robot.seen_distances))
 print(len(a.robot.seen_neighbors[40]))
 print(a.robot.seen_distances[40])
 y = a.robot.clustered_neighbors
+
+test_swarm = Swarm(1, 3, 12)
+z = test_swarm.cluster_size_list
+print(test_swarm.robot_id_list)
