@@ -17,7 +17,7 @@ def load_data():
 	list_of_lists = []
 
 	#number of robots
-	n  = 12
+	n  = 30
 
 
 	for m in range(n):

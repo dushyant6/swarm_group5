@@ -22,7 +22,7 @@ class Swarm:
                 self.neigh_dict = {}
                 for id in self.robot_id_list:
                         robot = Robot(id)
-                        neigh_dict[id] = robot.clustered_neighbors
+                        self.neigh_dict[id] = robot.clustered_neighbors
                 self.cluster_size_list = self.cluster_size()
 
                         
@@ -31,29 +31,34 @@ class Swarm:
                 min_size = 0
                 len_list = []
                 for id in self.robot_id_list:
+                        #print('id =', id)
                         robot = Robot(id)
                         len_list.append(len(robot.seen_distances))
                 min_size = min(len_list)
-                print('min size = ', min_size)                        
+                #print('min size/ time in seconds for experiment = ', min_size, 's')                        
                 cluster_size_list = []
                 keys = list(self.neigh_dict.keys())
-                max_cluster_size = 0
+                #print('keys = ', keys)
+                
                 for m in range(min_size):
+                        max_cluster_size = 1
                         for point in keys:
                                 cluster = []
                                 for i in self.neigh_dict[point][m]:
                                         cluster.append(i)
-                                
+                                        #print('point =', point, ', m =',m,', i =',i)
+                                '''
                                 for node in self.neigh_dict[point][m]:
                                         if(len(self.neigh_dict[node][m]) >0):
                                                 for pt in self.neigh_dict[node][m]:
                                                         #print(pt, end = ",")
                                                         cluster.append(pt)
                                         #print("\n")
+                                        '''
                                 cluster = list(set(cluster))
                                 cluster_size = len(cluster)
                                 if cluster_size > max_cluster_size:
-                                        max_cluster_size = cluster_size
+                                        max_cluster_size = cluster_size + 1 
                         cluster_size_list.append(max_cluster_size)
                 return cluster_size_list
 
@@ -140,11 +145,12 @@ print('cluster_size =', cl_size)
 
 
 a = test()
-print(len(a.robot.seen_distances))
-print(len(a.robot.seen_neighbors[40]))
-print(a.robot.seen_distances[40])
+#print(len(a.robot.seen_distances))
+#print(len(a.robot.seen_neighbors[40]))
+#print('robot id =',a.robot.id)
 y = a.robot.clustered_neighbors
 
-test_swarm = Swarm(1, 3, 12)
+test_swarm = Swarm(1, 3, 30)
 z = test_swarm.cluster_size_list
-print(test_swarm.robot_id_list)
+#print(test_swarm.robot_id_list)
+#print(test_swarm.cluster_size_list)
