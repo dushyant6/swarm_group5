@@ -1,0 +1,151 @@
+vmax = 10 #max velocity of each robot
+odd_params = {}
+even_params = {}
+step_test = 0
+state_table = {}
+running = 1
+
+function res_string(id, neigh_table){
+        res = string.tostring(id)
+        res = string.concat(res, " sees neighbors: ")
+        foreach(neigh_table, function(key,value){
+                res = string.concat(res, ",", string.tostring(key), ",", string.tostring(value))
+                }
+        )
+        return res
+        }
+
+function init() {
+num_classes = 4
+if (num_classes == 4){
+if(id%4 == 0){
+	set_leds(255,0,0)
+}
+else if (id%4 == 1){
+set_leds(0,255,0)
+}
+else if (id %4 == 2){
+set_leds(0,0, 255)
+}
+
+else{
+set_leds(255,0,255)
+}
+}
+
+
+min_angle = 3.14
+closest_neigh = 10
+is_active = 1
+perimeter_flag = 0
+iter = 0
+neigh_table = {}
+result_file = io.fopen("neighbors.csv", "a")
+}
+
+function step() {
+#Broadcast id of the robot which can be used to control wheel velocities
+#neigh_reached = 0
+num_classes = 4
+if ((num_classes == 4)){
+	#robot will stop transmitting data and act inactive when it reaches close to goal
+	neighbors.broadcast("class", id)
+
+neighbors.listen("class", function(vid, value, rid){
+	my_dist = neighbors.get(rid).distance
+	#if(my_dist < 14.5){
+	#	neigh_reached = neigh_reached + 1
+	#}
+	if(id%4 == rid%4){
+	neigh_table[rid] = my_dist
+	}
+	azim = neighbors.get(rid).azimuth
+	elev = neighbors.get(rid).elevation
+	if (math.abs(azim) < math.abs(min_angle)){
+		min_angle = azim
+		closest_neigh = rid
+	}
+})
+#log(size(neigh_table))
+res = res_string(id, neigh_table)
+#log(res)
+
+if(((math.abs(min_angle) < 0.16) and (id %4 == 0) and (closest_neigh %4 == 0) and (closest_neigh != 4)) or ((math.abs(min_angle) < 0.16) and (id %4 == 1) and (closest_neigh %4 == 1) and (closest_neigh != 9)) or ((math.abs(min_angle) < 0.16) and (id %4 == 2) and (closest_neigh %4 == 2) and (closest_neigh != 10)) or ((math.abs(min_angle) < 0.16) and (id %4 == 3) and (closest_neigh %4 == 3) and (closest_neigh != 11))){
+	s = 1
+}
+
+else if(((math.abs(min_angle) < 0.16) and (id %4 == 0) and (closest_neigh %4 != 0)) or ((math.abs(min_angle) < 0.16) and (id %4 == 1) and (closest_neigh %4 != 1)) or ((math.abs(min_angle) < 0.16) and (id %4 == 2) and (closest_neigh %4 != 2)) or ((math.abs(min_angle) < 0.16) and (id %4 == 3) and (closest_neigh %4 != 3))){
+	s = 2
+}
+
+else if (math.abs(min_angle) > 0.16){
+	s = 0
+}
+
+else if (((math.abs(min_angle) < 0.16) and (id %4 == 0) and (closest_neigh %4 == 0) and (closest_neigh == 4)) or ((math.abs(min_angle) < 0.16) and (id %4 == 1) and (closest_neigh %4 == 1) and (closest_neigh == 9)) or ((math.abs(min_angle) < 0.16) and (id %4 == 2) and (closest_neigh %4 == 2) and (closest_neigh == 10)) or ((math.abs(min_angle) < 0.16) and (id %4 == 3) and (closest_neigh %4 == 3) and (closest_neigh == 11))){
+	s = 3
+	#robot sees object of its class
+}
+#target object		
+if(running == 1){
+#if ((id != 12) and (id !=18) and (id != 11) and (id !=20) and (id != 10) and (id !=19))
+if ((id != 9) and (id != 11) and (id !=4) and (id != 10))
+	{
+		if((s == 0)){ #checking if the object is in +/-20 degrees in front of robot
+			LH = -6.66/10.0
+			RH = 3.33/10.0
+			#foraging speeds
+			#LH = 10./10
+			#RH = 3.7/10.
+		set_wheels(LH*vmax, RH*vmax)						
+
+		}
+
+		else if(s == 1){
+			LH = 3.333/10; RH = 10./10
+			#foraging speeds
+			#LH = 10.0/10
+			#RH = 10.0/10.0
+		set_wheels(LH*vmax, RH*vmax)						
+		}
+
+		else if (s == 2){
+			LH = -6.666/10; RH = 6.666/10
+			#foraging speeds
+			#LH = 10./10
+			#RH = 1.0
+		set_wheels(LH*vmax, RH*vmax)						
+		}
+
+		else if (s == 3){
+			LH = 6.666/10; RH = 20./10
+			#LH = -10./10; RH = 10./10
+			#foraging speeds
+			#LH = -10./10
+			#RH = 3.33/10
+		set_wheels(LH*vmax, RH*vmax)						
+		}
+
+	}
+	#set_wheels(LH*vmax, RH*vmax)						
+}
+
+min_angle = 3.14
+#iter = iter + 1
+}
+#io.fwrite(result_file, id,",",res)
+
+min_angle = 3.14
+#iter = iter + 1
+}
+
+
+
+# This function is executed when you press the reset button
+function reset() {
+}
+
+# This function is executed once when you close the simulator
+function destroy() {
+io.fclose(result_file)
+}
